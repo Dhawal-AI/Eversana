@@ -2,7 +2,7 @@ import streamlit as st
 import hashlib
 import pandas as pd
 import pickle
-
+import sklearn
 # Set the password for accessing the app
 PASSWORD_HASH = "c0a16a726686f7c44f99536443e6b942ba4cd80e5bd81a739ab63698a4368302"
 
