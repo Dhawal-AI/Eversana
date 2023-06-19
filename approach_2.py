@@ -69,8 +69,8 @@ def main():
             df.at[index, 'Relevance'] = relevance
             
         # Define the weights for relevance and similarity
-        relevance_weight = 1.0
-        similarity_weight = 1.0
+        relevance_weight = 15.0
+        similarity_weight = 20.0
 
         # Create the feature matrix X based on keyword relevance and similarity
         tfidf_matrix = vectorizer.transform(df['Text'])
