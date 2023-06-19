@@ -99,9 +99,6 @@ def main():
 
 def save_to_csv(df):
     # Save the DataFrame to a CSV file in the "Downloads" directory
-    file_path = os.path.join(os.path.expanduser("~"), "Downloads", "predictions.csv")
-    df.to_csv(file_path, index=False)
-    st.write('Predictions saved to:', file_path)
     st.download_button(
         label="Download Predictions CSV",
         data=df.to_csv().encode('utf-8'),
