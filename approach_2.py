@@ -18,6 +18,7 @@ def main():
 
     st.title('Model Prediction')
     st.write('Upload a CSV file to get predictions')
+    
     def get_keywords():
         keywords = []
         st.write('Enter keywords (one per line):')
@@ -26,22 +27,15 @@ def main():
             keywords = keyword_input.strip().split('\n')
         return keywords
 
-        # Define your predefined keywords
-    keywords =get_keywords()
+    # Define your predefined keywords
+    keywords = get_keywords()
+    
     # Create a file uploader
     file = st.file_uploader('Upload CSV file', type=['csv'])
 
     # Perform predictions when a file is uploaded
     if file is not None:
-        import pandas as pd
         df = pd.read_csv(file, encoding='latin-1')
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        from sklearn.metrics.pairwise import cosine_similarity
-        from sklearn.model_selection import train_test_split
-        from sklearn.linear_model import LogisticRegression
-        from sklearn.metrics import classification_report
-        from scipy.sparse import hstack, csr_matrix
-
         df = df.astype(str)
         
         # Load your DataFrame with research papers
@@ -87,8 +81,29 @@ def main():
                                     
         # Perform predictions using the loaded model and vectorizer
         # Replace the following code with your prediction logic
-        prediction = classifier.predict(X)
-        st.write('Prediction:', prediction)
+        predictions = classifier.predict(X)
+        
+        # Add the predictions to the DataFrame
+        df['Prediction'] = predictions
+        
+        # Display the DataFrame with predictions
+        st.write('Predictions:', df)
+        
+        # Add a button to save the DataFrame to a CSV file
+        if st.button('Save Predictions'):
+            save_to_csv(df)
+
+def save_to_csv(df):
+    # Save the DataFrame to a CSV file in the "Downloads" directory
+    file_path = os.path.join(os.path.expanduser("~"), "Downloads", "predictions.csv")
+    df.to_csv(file_path, index=False)
+    st.write('Predictions saved to:', file_path)
+    st.download_button(
+        label="Download Predictions CSV",
+        data=df.to_csv().encode('utf-8'),
+        file_name='predictions.csv',
+        mime='text/csv'
+    )
 
 def check_credentials():
     password = st.sidebar.text_input("Enter password", value="", type="password")
