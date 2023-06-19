@@ -6,6 +6,7 @@ import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import hstack, csr_matrix
+import os
 # Set the password for accessing the app
 PASSWORD_HASH = "c0a16a726686f7c44f99536443e6b942ba4cd80e5bd81a739ab63698a4368302"
 
