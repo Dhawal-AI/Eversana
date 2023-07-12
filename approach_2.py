@@ -16,6 +16,11 @@ vectorizer = pickle.load(open(r'vectorizer.pkl', 'rb'))
 
 # Define the Streamlit app
 def main():
+    st.image(
+    'Eversana_Logo_H_RGB.png',
+    width=100,
+)
+    
     CURRENT_THEME = "blue"
     IS_DARK_THEME = True
     # Check if the user is authorized to access the app
