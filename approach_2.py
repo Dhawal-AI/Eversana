@@ -1,4 +1,4 @@
-import streamlit as st
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import hashlib
 import pandas as pd
 import pickle
@@ -7,6 +7,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import hstack, csr_matrix
 import os
+from bardapi import Bard
+import streamlit as st
+
 # Set the password for accessing the app
 PASSWORD_HASH = "c0a16a726686f7c44f99536443e6b942ba4cd80e5bd81a739ab63698a4368302"
 
@@ -22,7 +25,7 @@ def main():
 
     st.title('Model Prediction')
     st.write('Upload a CSV file to get predictions')
-    
+
     def get_keywords():
         keywords = []
         st.write('Enter keywords (one per line):')
@@ -33,15 +36,15 @@ def main():
 
     # Define your predefined keywords
     keywords = get_keywords()
-    
+
     # Create a file uploader
     file = st.file_uploader('Upload CSV file', type=['csv'])
 
-    # Perform predictions when a file is uploaded
+    # Perform predictions and generate reasons when a file is uploaded
     if file is not None:
         df = pd.read_csv(file, encoding='latin-1')
         df = df.astype(str)
-        
+
         # Load your DataFrame with research papers
         # Preprocess the text by combining the title and abstract
         df['Text'] = df['Title'] + ' ' + df['Abstract']
@@ -49,23 +52,23 @@ def main():
         # Vectorize the text using TF-IDF
         tfidf_matrix = vectorizer.transform(df['Text'])
         df['Relevance'] = 0
-        
+
         # Calculate the similarity between the keywords and each paper
         keyword_vector = vectorizer.transform(keywords)
         similarity_scores = cosine_similarity(keyword_vector, tfidf_matrix)
         df1 = pd.DataFrame(similarity_scores.max(axis=0), columns=['Sim'])
         df1 = df1.astype('float')
-        
+
         for index, row in df.iterrows():
             title = row['Title']
             abstract = row['Abstract']
-    
+
             # Calculate relevance score based on keywords
             relevance = sum(keyword in title.lower() or keyword in abstract.lower() for keyword in keywords)
-    
+
             # Update the relevance score in the DataFrame
             df.at[index, 'Relevance'] = relevance
-            
+
         # Define the weights for relevance and similarity
         relevance_weight = 15.0
         similarity_weight = 20.0
@@ -82,29 +85,48 @@ def main():
         # Combine the features with the weighted relevance and similarity
         features = hstack([tfidf_matrix, relevance_features, similarity_features])
         X = features
-                                    
+
         # Perform predictions using the loaded model and vectorizer
         # Replace the following code with your prediction logic
         predictions = classifier.predict(X)
-        
+
         # Add the predictions to the DataFrame
         df['Prediction'] = predictions
-        
-        # Display the DataFrame with predictions
-        st.write('Predictions:', df)
-        
-        # Add a button to save the DataFrame to a CSV file
-        if st.button('Save Predictions'):
+
+        # Generate reasons using the provided code
+        def generate_program(picos_criteria, title, abstract):
+            return f"Given the PICOS criteria: {picos_criteria}\n\nTitle: {title}\nAbstract: {abstract}"
+
+        df['ResultsBard'] = ""
+        for i in range(len(df)):
+            message = '''act as an automatic Systematic literature reviewer, I will give you a PICOS criteria and based on that you have to accept or reject a study based on its title and abstract,\n''' + str(generate_program(keywords, df['Title'][i], df['Abstract'][i])) + " Keep your answer concise up to 150 words"
+            df.at[i, 'ResultsBard'] = Bard().get_answer(str(message))['content']
+
+        # Display the DataFrame with predictions and reasons
+        st.write('Predictions and Reasons:', df)
+
+        # Add buttons to save and download the new CSV
+        if st.button('Save Predictions and Reasons'):
             save_to_csv(df)
+
+        if st.button('Download Predictions and Reasons CSV'):
+            download_csv(df)
+
 
 def save_to_csv(df):
     # Save the DataFrame to a CSV file in the "Downloads" directory
+    df.to_csv('predictions_and_reasons.csv', index=False)
+
+
+def download_csv(df):
+    # Download the CSV file
     st.download_button(
-        label="Download Predictions CSV",
+        label="Download Predictions and Reasons CSV",
         data=df.to_csv().encode('utf-8'),
-        file_name='predictions.csv',
+        file_name='predictions_and_reasons.csv',
         mime='text/csv'
     )
+
 
 def check_credentials():
     password = st.sidebar.text_input("Enter password", value="", type="password")
@@ -113,6 +135,7 @@ def check_credentials():
         st.sidebar.error("Invalid password. Access denied.")
         return False
     return True
+
 
 if __name__ == '__main__':
     main()
