@@ -98,7 +98,7 @@ def main():
 
         df['ResultsBard'] = ""
         os.environ["_BARD_API_KEY"]="Xwj5sVDzqYsdp-biewkbpM26kz7DmFI1KENySgrFflnFoGaD3SnrP6EMvUYTYOpuWI4qkw."
-        for i in range(len(df)):
+        for i in range(50):
             message = '''act as an automatic Systematic literature reviewer, I will give you a PICOS criteria and based on that you have to accept or reject a study based on its title and abstract,\n''' + str(generate_program(keywords, df['Title'][i], df['Abstract'][i])) + " Keep your answer concise up to 150 words"
             df.at[i, 'ResultsBard'] = Bard().get_answer(str(message))['content']
 
