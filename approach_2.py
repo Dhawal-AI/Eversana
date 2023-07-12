@@ -18,7 +18,7 @@ vectorizer = pickle.load(open(r'vectorizer.pkl', 'rb'))
 def main():
     st.image(
     'Eversana_Logo_H_RGB.png',
-    width=100,
+    width=1000,
 )
     
     CURRENT_THEME = "blue"
