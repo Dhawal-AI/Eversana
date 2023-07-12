@@ -2,3 +2,4 @@ pandas==1.4.3
 numpy==1.23.0
 streamlit==1.10.0
 scikit_learn==1.2.2
+bardapi
