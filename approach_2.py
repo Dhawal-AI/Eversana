@@ -27,13 +27,13 @@ def main():
     if not check_credentials():
         return
 
-    st.title('Model Prediction')
+    st.title('Sytematic Literature Reviewer')
     st.write('Upload a CSV file to get predictions')
     
     def get_keywords():
         keywords = []
-        st.write('Enter keywords (one per line):')
-        keyword_input = st.text_area('Keywords')
+        st.write('Enter PICOS (one per line):')
+        keyword_input = st.text_area('PICOS')
         if keyword_input:
             keywords = keyword_input.strip().split('\n')
         return keywords
