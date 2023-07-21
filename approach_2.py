@@ -11,7 +11,7 @@ import os
 PASSWORD_HASH = "c0a16a726686f7c44f99536443e6b942ba4cd80e5bd81a739ab63698a4368302"
 
 # Load the trained model and vectorizer
-classifier = pickle.load(open(r'finalized_model5.pkl', 'rb'))
+classifier = pickle.load(open(r'finalized_model6.pkl', 'rb'))
 vectorizer = pickle.load(open(r'vectorizer.pkl', 'rb'))
 
 # Define the Streamlit app
